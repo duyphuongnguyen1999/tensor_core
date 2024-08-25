@@ -4,98 +4,104 @@
 
 # Compiler settings
 CC = gcc
-CXXFLAGS = -std=c11 -Wall -g
+CFLAGS = -std=c11 -Wall -g
 LDFLAGS = 
 
 # Makefile settings
-APPNAME = C-DSALib.a
-EXT = .c
+APPNAME = C-DSALib	# Core name of the application
+LIBNAME = lib$(APPNAME).a	# Static library is 'libC-DSALib.a'
+EXT = .c # Source file extension
 
 # Directories
-SRCDIR = src
-INCDIR = include
-OBJDIR = obj
-LIBDIR = lib
-TESTDIR = tests
-EXAMPDIR = examples
-MKDIR = mkdir -p
+SRCDIR = src				# Directory for the source files
+INCDIR = include			# Directory for the header files
+OBJDIR = obj				# Directory for the object files
+LIBDIR = lib				# Directory for the library files
+TESTDIR = tests				# Directory for the test files
+EXAMPDIR = examples			# Directory for the example files
 
-# Find all source files, objects, and test files
+# Gather all source, objects, dependency files
 SRC = $(wildcard $(SRCDIR)/*$(EXT))
 OBJ = $(SRC:$(SRCDIR)/%$(EXT)=$(OBJDIR)/%.o)
-TESTS = $(wildcard $(TESTDIR)/*$(EXT))
-EXAMPLES = $(wildcard $(EXAMPDIR)/*$(EXT))
-
-# Create dependency files 
 DEP = $(OBJ:$(OBJDIR)/%.o=%.d)
 
-# UNIX-based OS variables & settings
-RM = rm
-DELOBJ = $(OBJ)
-
-# Windows OS variables & settings
-DEL = del
-EXE = .exe
-WDELOBJ = $(SRC:$(SRCDIR)/%$(EXT)=$(OBJDIR)\\%.o)
+# Identify the OS type to adjust commands
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux) 		# Linux OS variables & settings
+	MKDIR = mkdir -p
+	EXE_EXT =
+	RM = rm -rf
+else ifeq ($(UNAME_S),Darwin) 	# macOS variables & settings
+	MKDIR = mkdir -p
+	EXE_EXT =
+	RM = rm -rf
+else	# Window OS variables & settings
+	MKDIR = mkdir
+	EXE_EXT = .exe				
+	RM = del /Q /F
 
 ########################################################################
 ####################### Targets beginning here #########################
 ########################################################################
 
-all: $(LIBDIR)/$(APPNAME)
+# Default target to build the static library
+all: $(LIBDIR)/$(LIBNAME)
 
 # Create static library
-$(LIBDIR)/$(APPNAME): $(OBJ)
+$(LIBDIR)/$(LIBNAME): $(OBJ)
 	@$(MKDIR) $(LIBDIR)
 	ar rcs $@ $(OBJ)		
 
-# Building rule for .o files and its .c/.cpp in combination with all .h
+# Rule for building object files from source files
 $(OBJDIR)/%.o: $(SRCDIR)/%$(EXT)
 	@$(MKDIR) $(OBJDIR)
-	$(CC) $(CXXFLAGS) -I$(INCDIR) -o $@ -c $<
+	$(CC) $(CFLAGS) -I$(INCDIR) -o $@ -c $<
 
-# Includes all .h files
+# Create the dependency files for header inclusion
+%.d: $(SRCDIR)/%$(EXT)
+	@$(MKDIR) $(OBJDIR)
+	$(CC) $(CFLAGS) -I$(INCDIR) -MM -MT $(@:%.d=$(OBJDIR)/%.o) $< > $@
+
+# Include all .d files (dependency rules)
 -include $(DEP)
 
-# Creates the dependecy rules
-%.d: $(SRCDIR)/%$(EXT)
-	@$(CC) $(CXXFLAGS) -I$(INCDIR) $< -MM -MT $(@:%.d=$(OBJDIR)/%.o) >$@
-
-
-########################################################################
-####################### Test and Example Targets #######################
-########################################################################
-
-############## Compiling tests files rulefor Unix-base OS ##############
-# Compile and run all tests
-.PHONY: test
-test: $(TESTS:.c=.out)
-	@for test in $(TESTS:.c=.out); do ./$$test; done
-
-# Compile indivisual test file
-$(TESTDIR)/%.out: $(TESTDIR)/%$(EXT) $(LIBDIR)/lib$(APPNAME)
-	$(CC) $(CXXFLAGS) -I$(INCDIR) -o $@ $< -L$(LIBDIR) -l$(APPNAME:lib%.a=%)
-
-################### Cleaning rules for Unix-based OS ###################
-# Cleans complete project
+# Clean up all generated files (multi-OS compatible)
 .PHONY: clean
 clean:
-	$(RM) $(DELOBJ) $(DEP) $(APPNAME)
+	$(RM) $(OBJ) $(DEP) $(LIBDIR)/$(LIBNAME)
 
-# Cleans only all files with the extension .d
+# Cleans only all files with the extension .d (multi-OS compatible)
 .PHONY: cleandep
 cleandep:
 	$(RM) $(DEP)
 
-#################### Cleaning rules for Windows OS #####################
-# Cleans complete project
-.PHONY: cleanw
-cleanw:
-	$(DEL) $(WDELOBJ) $(DEP) $(APPNAME)$(EXE)
+########################################################################
+##################### Test Compilation and Execution ###################
+########################################################################
 
-# Cleans only all files with the extension .d
-.PHONY: cleandepw
-cleandepw:
-	$(DEL) $(DEP)
+# Set test files and define their compilation and execution
+TESTS = $(wildcard $(TESTDIR)/*$(EXT))
+TEST_EXES = $(TESTS:.c=$(EXE_EXT))
+
+# Compile and run all tests
+.PHONY: test
+test: $(TEST_EXES)
+	@for test in $(TEST_EXES); do .$(if $(EXE_EXT),\\,/)$$test; done
+
+# Compile indivisual test file
+$(TESTDIR)/%$(EXE_EXT): $(TESTDIR)/%$(EXT) $(LIBDIR)/$(LIBNAME)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< -L$(LIBDIR) -l$(APPNAME)
+
+########################################################################
+##################### Windows Compatibility Notes #####################
+########################################################################
+
+# If on Windows, this Makefile assumes that you're using a compatible
+# shell environment, such as MinGW or Cygwin, where the `mkdir` and `rm`
+# commands will behave as expected. In native Windows Command Prompt,
+# use compatible commands as needed.
+
+
+
 
 
