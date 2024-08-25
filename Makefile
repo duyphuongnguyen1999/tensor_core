@@ -68,7 +68,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%$(EXT)
 # Clean up all generated files (multi-OS compatible)
 .PHONY: clean
 clean:
-	$(RM) $(OBJ) $(DEP) $(LIBDIR)/$(LIBNAME)
+	$(RM) $(OBJ) $(DEP) $(LIBDIR)/$(LIBNAME) $(TESTDIR)/*$(EXE_EXT) $(EXAMPLEDIR)/*$(EXE_EXT)
 
 # Cleans only all files with the extension .d (multi-OS compatible)
 .PHONY: cleandep
@@ -90,6 +90,23 @@ test: $(TEST_EXES)
 
 # Compile indivisual test file
 $(TESTDIR)/%$(EXE_EXT): $(TESTDIR)/%$(EXT) $(LIBDIR)/$(LIBNAME)
+	$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< -L$(LIBDIR) -l$(APPNAME)
+
+########################################################################
+################### Example Compilation and Execution ##################
+########################################################################
+
+# Set example files and define their compilation and execution
+EXAMPLES = $(wildcard $(EXAMPLEDIR)/*$(EXT))
+EXAMPLE_EXES = $(EXAMPLES:.c=$(EXE_EXT))
+
+# Compile and run all examples
+.PHONY: example
+example: $(EXAMPLE_EXES)
+	@for example in $(EXAMPLE_EXES); do .$(if $(EXE_EXT),\\,/)$$example; done
+
+# Compile individual example file
+$(EXAMPLEDIR)/%$(EXE_EXT): $(EXAMPLEDIR)/%$(EXT) $(LIBDIR)/$(LIBNAME)
 	$(CC) $(CFLAGS) -I$(INCDIR) -o $@ $< -L$(LIBDIR) -l$(APPNAME)
 
 ########################################################################
