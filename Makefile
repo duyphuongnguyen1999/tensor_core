@@ -4,12 +4,30 @@
 
 # Compiler settings
 CC = gcc
-CFLAGS = -std=c11 -Wall -g
-LDFLAGS = 
+CFLAGS = -std=c11 -Wall -g -fPIC 	# Add -fPIC for position-independent code
+LDFLAGS = -shared					# Add -shared for dynamic library
+
+# Identify the OS type to adjust commands
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux) 		# Linux OS variables & settings
+	MKDIR = mkdir -p
+	EXE_EXT =
+	LIB_EXT = .so				
+	RM = rm -rf
+else ifeq ($(UNAME_S),Darwin) 	# macOS variables & settings
+	MKDIR = mkdir -p
+	EXE_EXT =
+	LIB_EXT = .so
+	RM = rm -rf
+else	# Window OS variables & settings
+	MKDIR = mkdir
+	EXE_EXT = .exe
+	LIB_EXT = .dll
+	RM = del /Q /F
 
 # Makefile settings
 APPNAME = C-DSALib	# Core name of the application
-LIBNAME = lib$(APPNAME).a	# Static library is 'libC-DSALib.a'
+LIBNAME = lib$(APPNAME).$(LIB_EXT)	# Shared library is 'libC-DSALib.$(LIB_EXT)'
 EXT = .c # Source file extension
 
 # Directories
@@ -25,32 +43,17 @@ SRC = $(wildcard $(SRCDIR)/*$(EXT))
 OBJ = $(SRC:$(SRCDIR)/%$(EXT)=$(OBJDIR)/%.o)
 DEP = $(OBJ:$(OBJDIR)/%.o=%.d)
 
-# Identify the OS type to adjust commands
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux) 		# Linux OS variables & settings
-	MKDIR = mkdir -p
-	EXE_EXT =
-	RM = rm -rf
-else ifeq ($(UNAME_S),Darwin) 	# macOS variables & settings
-	MKDIR = mkdir -p
-	EXE_EXT =
-	RM = rm -rf
-else	# Window OS variables & settings
-	MKDIR = mkdir
-	EXE_EXT = .exe				
-	RM = del /Q /F
-
 ########################################################################
 ####################### Targets beginning here #########################
 ########################################################################
 
-# Default target to build the static library
+# Default target to build the dynamic library
 all: $(LIBDIR)/$(LIBNAME)
 
-# Create static library
+# Create dynamic library
 $(LIBDIR)/$(LIBNAME): $(OBJ)
 	@$(MKDIR) $(LIBDIR)
-	ar rcs $@ $(OBJ)		
+	$(CC) $(LDFLAGS) -o $@ $(OBJ)	# Linking to create shared library	
 
 # Rule for building object files from source files
 $(OBJDIR)/%.o: $(SRCDIR)/%$(EXT)
