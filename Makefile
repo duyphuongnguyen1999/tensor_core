@@ -23,12 +23,21 @@ else	# Window OS variables & settings
 	MKDIR = mkdir
 	EXE_EXT = .exe
 	LIB_EXT = .dll
+	IMPLIB = $(LIBDIR)/lib$(APPNAME).lib	# Import library for Windows
 	RM = del /Q /F
+endif
+
+# Build types for debug/release
+ifdef DEBUG
+	CFLAGS += -O0 -g
+else
+	CFLAGS += -O2
+endif
 
 # Makefile settings
-APPNAME = C-DSALib	# Core name of the application
-LIBNAME = lib$(APPNAME).$(LIB_EXT)	# Shared library is 'libC-DSALib.$(LIB_EXT)'
-EXT = .c # Source file extension
+APPNAME = C-DSALib					# Core name of the application
+LIBNAME = lib$(APPNAME).$(LIB_EXT)	# Dynamic library name
+EXT = .c 							# Source file extension
 
 # Directories
 SRCDIR = src				# Directory for the source files
@@ -50,10 +59,10 @@ DEP = $(OBJ:$(OBJDIR)/%.o=%.d)
 # Default target to build the dynamic library
 all: $(LIBDIR)/$(LIBNAME)
 
-# Create dynamic library
+# Create dynamic library (and Windows import library)
 $(LIBDIR)/$(LIBNAME): $(OBJ)
 	@$(MKDIR) $(LIBDIR)
-	$(CC) $(LDFLAGS) -o $@ $(OBJ)	# Linking to create shared library	
+	$(CC) $(LDFLAGS) -o $@ $(OBJ) $(if $(IMPLIB), -W1, --out-implib, $(IMPLIB))	# Linking to create shared library	
 
 # Rule for building object files from source files
 $(OBJDIR)/%.o: $(SRCDIR)/%$(EXT)
