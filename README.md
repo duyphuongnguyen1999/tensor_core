@@ -1,8 +1,8 @@
-# C-DSALib
+# TensorForge
 
 ## Introduction
 
-C-DSALib is a lightweight and efficient C library providing a variety of commonly used data structures and algorithms. It is designed to be flexible, modular, and easy to use, with an object-oriented programming model in C. The library is well-suited for low-level system programming, embedded systems, and performance-critical applications.
+TensorForge is a lightweight and efficient C library providing a variety of commonly used data structures and algorithms. It is designed to be flexible, modular, and easy to use, with an object-oriented programming model in C. The library is well-suited for low-level system programming, embedded systems, and performance-critical applications.
 
 ### Key Features
 
@@ -13,13 +13,13 @@ C-DSALib is a lightweight and efficient C library providing a variety of commonl
 
 ## Installation
 
-To use C-DSALib in your project, follow these steps:
+To use TensorForge in your project, follow these steps:
 
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/duyphuongnguyen1999/C-DSALib.git
-cd C-DSALib
+git clone https://github.com/duyphuongnguyen1999/TensorForge.git
+cd TensorForge
 ```
 
 ### Build the Library
@@ -32,7 +32,7 @@ make
 
 ### Integration
 
-To integrate C-DSALib into your own project, include the header files and link the static library:
+To integrate TensorForge into your own project, include the header files and link the static library:
 
 ```c
 #include "cdsalib.h"  // Single header for the entire library
@@ -41,5 +41,5 @@ To integrate C-DSALib into your own project, include the header files and link t
 In your Makefile, link against the static library:
 
 ```makefile
-LDFLAGS = -Lpath_to_C-DSALib/lib -lC-DSALib
+LDFLAGS = -Lpath_to_TensorForge/lib -lTensorForge
 ```
