@@ -1,4 +1,4 @@
-# TensorForge
+# tensor_core
 
 ## Introduction
 
