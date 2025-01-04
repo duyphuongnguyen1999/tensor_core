@@ -8,10 +8,11 @@ typedef struct Tensor
     void *data;
     size_t ndims;
     size_t *shape;
-    size_t *stride;
+    size_t *num_ele;
+    size_t *strides;
     dtype dtype;
-    float *grad;
-    bool require_grad;
+    float *grads;
+    bool requires_grad;
 
     (float *)at(int position[]);
 } Tensor;
