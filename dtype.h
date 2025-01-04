@@ -6,14 +6,14 @@ typedef enum dtype_id
     FLT64  // double
 } dtype_id;
 
-typedef struct dtype
+typedef struct Dtype
 {
     const char *name;
     size_t size;
     dtype_id id;
-} dtype;
+} Dtype;
 
-const dtype int32 = {"32bits_integer", sizeof(int), INT32};
-const dtype int64 = {"64bits_integer", sizeof(long), INT64};
-const dtype float32 = {"32bits_float", sizeof(float), FLT32};
-const dtype float64 = {"64bits_float", sizeof(double), FLT64};
+const Dtype int32 = {"32bits_integer", sizeof(int), INT32};
+const Dtype int64 = {"64bits_integer", sizeof(long), INT64};
+const Dtype float32 = {"32bits_float", sizeof(float), FLT32};
+const Dtype float64 = {"64bits_float", sizeof(double), FLT64};
