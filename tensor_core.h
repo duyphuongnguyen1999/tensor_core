@@ -6,5 +6,6 @@
 
 Tensor *empty_tensor(size_t shape[], size_t ndims, dtype dtype);
 Tensor *zeros_tensor(size_t shape[], size_t ndims, dtype dtype);
+Tensor *ones_tensor(size_t shape[], size_t ndims, dtype dtype);
 
 #endif
