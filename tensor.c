@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <string.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include "tensor.h"
 
 Tensor *empty_tensor(size_t shape[], size_t ndims, Dtype dtype)
@@ -145,4 +146,59 @@ Tensor *ones_tensor(size_t shape[], size_t ndims, Dtype dtype)
             data[i] = 1;
         }
     }
+}
+
+// Helper function to generate random numbers from a normal distribution, use Box-Muller transform
+static double box_muller_generator(double mean, double stddev)
+{
+    // Generate 2 random uniform distribution numbers using rand()
+    double u1 = (double)rand() / RAND_MAX;
+    double u2 = (double)rand() / RAND_MAX;
+
+    // Use Box-Muller transform to generate standard normal random variables
+    double R = sqrt(-2.0 * log(u1));
+    double theta = 2.0 * M_PI * u2;
+    double z0 = R * cos(theta);
+
+    // Scale and shift to match desired mean and stddev
+    z0 = z0 * stddev + mean;
+
+    return z0;
+}
+
+Tensor *kaiming_he_init(size_t shape[], size_t ndims, Dtype dtype)
+{
+    Tensor *tensor = empty_tensor(shape, ndims, dtype);
+    assert(tensor->dtype.id == FLT32 || tensor->dtype.id == FLT64);
+
+    double stddev = sqrt(2 / tensor->num_ele);
+
+    // Populate the tensor with values from N(0, stddev^2)
+    if (tensor->dtype.id == FLT32)
+    {
+        float *data = (float *)tensor->data;
+        for (size_t i = 0; i < tensor->num_ele; i++)
+        {
+            data[i] = (float)normal_distribution(0.0, stddev);
+        }
+    }
+    else if (tensor->dtype.id == FLT64)
+    {
+        double *data = (double *)tensor->data;
+        for (size_t i = 0; i < tensor->num_ele; i++)
+        {
+            data[i] = normal_distribution(0.0, stddev);
+        }
+    }
+    else
+    {
+        assert(false && "Kaiming He initialization is only supported for floating-point types");
+    }
+}
+
+void free_tensor(Tensor *tensor)
+{
+    free(tensor->data);
+    free(tensor->strides);
+    free(tensor);
 }
