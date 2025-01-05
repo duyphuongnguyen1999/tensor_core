@@ -10,11 +10,16 @@ typedef struct Tensor
     size_t *shape;
     size_t *num_ele;
     size_t *strides;
-    dtype dtype;
+    Dtype dtype;
     float *grads;
     bool requires_grad;
 
     (float *)at(int position[]);
 } Tensor;
+
+Tensor *empty_tensor(size_t shape[], size_t ndims, Dtype dtype);
+Tensor *zeros_tensor(size_t shape[], size_t ndims, Dtype dtype);
+Tensor *ones_tensor(size_t shape[], size_t ndims, Dtype dtype);
+void free_tensor(Tensor *tensor);
 
 #endif
